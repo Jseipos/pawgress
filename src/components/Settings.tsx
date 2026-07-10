@@ -11,6 +11,7 @@ import {
 import { generateMilestones } from "@/lib/milestones";
 import { downloadIcs } from "@/lib/ics";
 import KidAccessSetup from "@/components/KidAccessSetup";
+import { buildGuardianShareUrl } from "@/lib/share";
 
 interface SettingsProps {
   profile: PuppyProfile | null;
@@ -36,9 +37,16 @@ export default function Settings({ profile, onProfileChanged, onDataReset }: Set
   }
 
   // ─── Guardian share link ──────────────────────────────────────────────────
-  const guardianUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/guardian`
-    : "/guardian";
+  const guardianUrl = (() => {
+    if (typeof window === "undefined") return "/guardian";
+    if (kidProfile && profile) {
+      return buildGuardianShareUrl(kidProfile, profile.puppyName, window.location.origin);
+    }
+    if (kidProfile) {
+      return buildGuardianShareUrl(kidProfile, "your new pet", window.location.origin);
+    }
+    return `${window.location.origin}/guardian`;
+  })();
   const smsShareHref = kidProfile
     ? `sms:${kidProfile.childName}&body=${encodeURIComponent(`Hey ${kidProfile.childName}! Here's your Junior Guardian link for ${profile?.puppyName ?? "your pet"}: ${guardianUrl}`)}`
     : `sms:?&body=${encodeURIComponent(`Here's the Junior Guardian link: ${guardianUrl}`)}`;

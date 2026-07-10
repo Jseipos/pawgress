@@ -9,8 +9,10 @@ import type {
   GuardianPrefs,
   PuppyProfile,
 } from "@/lib/storage";
+// PuppyProfile is used for creating a minimal pet profile from shared URL data
 import {
   getKidProfile,
+  saveKidProfile,
   getAllGuardianLogs,
   getAllGuardianBadges,
   getGuardianPrefs,
@@ -24,6 +26,7 @@ import {
   todayISODate,
   generateId,
 } from "@/lib/storage";
+import { decodeGuardianProfile } from "@/lib/share";
 import GuardianChecklist, { type ChecklistItems } from "@/components/GuardianChecklist";
 import StreakTracker from "@/components/StreakTracker";
 import MilestoneMeter from "@/components/MilestoneMeter";
@@ -61,9 +64,49 @@ export default function GuardianPage() {
 
     async function init() {
       try {
-        const [profile, pet, allLogs, allBadges, gprefs] = await Promise.all([
-          getKidProfile("default"),
-          getProfile("default"),
+        // Check for a shared profile in the URL hash first
+        const hash = typeof window !== "undefined" ? window.location.hash : "";
+        const shared = decodeGuardianProfile(hash);
+
+        let profile = await getKidProfile("default");
+        let pet = await getProfile("default");
+
+        // If a shared profile was found in the URL and we don't have one locally,
+        // save it to IndexedDB so it persists for future visits
+        if (shared && !profile) {
+          profile = {
+            id: "default",
+            childName: shared.childName,
+            mascot: shared.mascot as KidProfile["mascot"],
+            targetDate: shared.targetDate,
+            createdAt: new Date().toISOString(),
+          };
+          await saveKidProfile(profile);
+        }
+
+        // If we have a shared pet name but no local pet profile, create a minimal one
+        // so the guardian UI can display the pet name
+        if (shared && shared.petName && !pet) {
+          pet = {
+            id: "default",
+            createdDate: new Date().toISOString(),
+            puppyName: shared.petName,
+            breedName: "",
+            coatType: "curly",
+            expectedAdultWeightLbs: 0,
+            gender: "male",
+            birthDate: "",
+            startDate: "",
+            currentAgeWeeks: 0,
+            lifeStage: "puppy",
+            isAdoption: false,
+            trainingGoals: [],
+            feedingType: "kibble",
+            avatarType: "paw",
+          } as PuppyProfile;
+        }
+
+        const [allLogs, allBadges, gprefs] = await Promise.all([
           getAllGuardianLogs(),
           getAllGuardianBadges(),
           getGuardianPrefs("default"),
