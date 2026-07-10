@@ -35,6 +35,14 @@ export default function Settings({ profile, onProfileChanged, onDataReset }: Set
     setTimeout(() => setMessage(null), 3000);
   }
 
+  // ─── Guardian share link ──────────────────────────────────────────────────
+  const guardianUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/guardian`
+    : "/guardian";
+  const smsShareHref = kidProfile
+    ? `sms:${kidProfile.childName}&body=${encodeURIComponent(`Hey ${kidProfile.childName}! Here's your Junior Guardian link for ${profile?.puppyName ?? "your pet"}: ${guardianUrl}`)}`
+    : `sms:?&body=${encodeURIComponent(`Here's the Junior Guardian link: ${guardianUrl}`)}`;
+
   // ─── Export ────────────────────────────────────────────────────────────────
 
   async function handleExport() {
@@ -229,9 +237,7 @@ export default function Settings({ profile, onProfileChanged, onDataReset }: Set
         <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-5 shadow-sm">
           <h3 className="mb-2 text-sm font-bold text-purple-800">Junior Guardian 🧒</h3>
           <p className="mb-3 text-sm text-slate-600">
-            Set up a fun, simple checklist mode for your child at{" "}
-            <code className="rounded bg-purple-100 px-1 text-xs">/guardian</code>.
-            They&apos;ll do 4 quick tasks daily to build pet-prep habits.
+            Set up a fun, simple checklist mode for your child. They&apos;ll do 4 quick tasks daily to build pet-prep habits.
           </p>
           {kidProfile ? (
             <div className="space-y-3">
@@ -242,6 +248,33 @@ export default function Settings({ profile, onProfileChanged, onDataReset }: Set
                   <strong>Target:</strong> {new Date(kidProfile.targetDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </p>
               </div>
+
+              {/* Shareable link */}
+              <div className="rounded-lg border-2 border-purple-200 bg-white p-3">
+                <p className="mb-2 text-xs font-semibold uppercase text-purple-500">Kid&apos;s link</p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 truncate rounded bg-purple-50 px-2 py-1.5 text-xs text-purple-700">
+                    {guardianUrl}
+                  </code>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard?.writeText(guardianUrl).then(() => flash("Link copied!")).catch(() => flash("Copy failed — long-press the link"));
+                    }}
+                    className="rounded-lg bg-purple-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-purple-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
+                    aria-label="Copy link"
+                  >
+                    📋 Copy
+                  </button>
+                </div>
+                <a
+                  href={smsShareHref}
+                  className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg bg-green-500 px-3 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-green-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                  aria-label={`Text link to ${kidProfile.childName}`}
+                >
+                  💬 Text to {kidProfile.childName}
+                </a>
+              </div>
+
               <div className="flex flex-wrap gap-2">
                 <Link
                   href="/guardian"
