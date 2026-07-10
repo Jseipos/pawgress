@@ -36,6 +36,7 @@ import { getMascotEmoji, hasMascotImage, getMascotImage } from "@/components/Mas
 type Screen =
   | "loading"
   | "noProfile"
+  | "pinEntry"
   | "intro"
   | "dashboard"
   | "checklist"
@@ -56,6 +57,9 @@ export default function GuardianPage() {
   const [celebrationBadges, setCelebrationBadges] = useState<GuardianBadge[]>([]);
   const [newStreak, setNewStreak] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [pinInput, setPinInput] = useState("");
+  const [pinError, setPinError] = useState(false);
+  const [requiredPin, setRequiredPin] = useState<string | null>(null);
 
   // ─── Load on mount ──────────────────────────────────────────────────────
 
@@ -77,6 +81,7 @@ export default function GuardianPage() {
           profile = {
             id: "default",
             childName: shared.childName,
+            pin: shared.pin || undefined,
             mascot: shared.mascot as KidProfile["mascot"],
             targetDate: shared.targetDate,
             createdAt: new Date().toISOString(),
@@ -122,6 +127,13 @@ export default function GuardianPage() {
 
         if (!profile) {
           setScreen("noProfile");
+          return;
+        }
+
+        // If profile has a PIN, require entry before proceeding
+        if (profile.pin) {
+          setRequiredPin(profile.pin);
+          setScreen("pinEntry");
           return;
         }
 
@@ -295,6 +307,65 @@ export default function GuardianPage() {
         >
           Go to Pawgress 🐾
         </Link>
+      </div>
+    );
+  }
+
+  // PIN entry
+  if (screen === "pinEntry") {
+    function handlePinSubmit() {
+      if (pinInput === requiredPin) {
+        setPinError(false);
+        setRequiredPin(null);
+        if (!prefs || !prefs.hasSeenIntro) {
+          setScreen("intro");
+        } else {
+          setScreen("dashboard");
+        }
+      } else {
+        setPinError(true);
+        setPinInput("");
+      }
+    }
+
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-purple-50 to-pink-50 px-6 py-12">
+        <span className="text-6xl" aria-hidden="true">🔐</span>
+        <h1 className="mt-4 text-3xl font-bold text-purple-700">Enter Your PIN</h1>
+        <p className="mt-2 max-w-sm text-center text-lg text-purple-500">
+          Type your 4-digit secret code to start! 🌟
+        </p>
+        <input
+          type="password"
+          inputMode="numeric"
+          maxLength={4}
+          value={pinInput}
+          onChange={(e) => {
+            setPinInput(e.target.value.replace(/\D/g, ""));
+            setPinError(false);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && pinInput.length === 4) handlePinSubmit();
+          }}
+          placeholder="••••"
+          aria-label="4-digit PIN"
+          autoFocus
+          className="mt-6 w-48 rounded-xl border-4 border-purple-200 bg-white px-4 py-3 text-center text-4xl tracking-widest text-purple-700 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-400"
+        />
+        {pinError && (
+          <p className="mt-3 text-lg font-semibold text-rose-500">
+            Oops! Try again 💪
+          </p>
+        )}
+        <button
+          onClick={handlePinSubmit}
+          disabled={pinInput.length !== 4}
+          className="mt-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-4 text-xl font-bold text-white shadow-xl transition-all hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-purple-400 disabled:opacity-40 disabled:hover:scale-100"
+          style={{ minHeight: "60px" }}
+          aria-label="Submit PIN"
+        >
+          Go! 🚀
+        </button>
       </div>
     );
   }

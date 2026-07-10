@@ -7,6 +7,7 @@ import type { KidProfile } from "@/lib/storage";
 /**
  * Encode a kid profile + pet name into a compact URL-safe string.
  * Uses base64url encoding of a JSON payload.
+ * PIN is included so the guardian side can enforce it.
  */
 export function encodeGuardianProfile(kid: KidProfile, petName: string): string {
   const payload = {
@@ -14,7 +15,7 @@ export function encodeGuardianProfile(kid: KidProfile, petName: string): string 
     m: kid.mascot,         // mascot
     t: kid.targetDate,     // target date
     p: petName,            // pet name
-    // PIN intentionally excluded — kid doesn't need it on their device
+    k: kid.pin ?? "",       // PIN (optional, empty string if none)
   };
   const json = JSON.stringify(payload);
   // base64url encode (handles unicode via encodeURIComponent)
@@ -36,7 +37,7 @@ export function buildGuardianShareUrl(kid: KidProfile, petName: string, origin: 
  * Decode a guardian profile from a URL hash.
  * Returns null if no valid profile is found.
  */
-export function decodeGuardianProfile(hash: string): { childName: string; mascot: string; targetDate: string; petName: string } | null {
+export function decodeGuardianProfile(hash: string): { childName: string; mascot: string; targetDate: string; petName: string; pin?: string } | null {
   try {
     // Extract the encoded payload from the hash
     const match = hash.match(/(?:^|#)p=([A-Za-z0-9_-]+)/);
@@ -61,6 +62,7 @@ export function decodeGuardianProfile(hash: string): { childName: string; mascot
       mascot: payload.m,
       targetDate: payload.t,
       petName: payload.p,
+      pin: payload.k || undefined,
     };
   } catch {
     return null;
