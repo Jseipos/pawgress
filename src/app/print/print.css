@@ -1,0 +1,104 @@
+/* Print stylesheet for Pawgress printables */
+
+@media print {
+  /* Hide everything that's not printable */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: letter;
+    margin: 0.75in;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  /* Ensure good print typography */
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+
+  .print-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Large, clear headings for print */
+  .print-title {
+    font-size: 24pt;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 0.5in;
+  }
+
+  .print-subtitle {
+    font-size: 14pt;
+    text-align: center;
+    margin-bottom: 0.3in;
+  }
+
+  /* Certificate styling */
+  .certificate-border {
+    border: 3px solid #7c3aed;
+    padding: 0.5in;
+    text-align: center;
+  }
+
+  .certificate-name {
+    font-size: 28pt;
+    font-weight: bold;
+    color: #7c3aed;
+    margin: 0.25in 0;
+  }
+
+  /* Chart styling */
+  .duties-chart {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .duties-chart th,
+  .duties-chart td {
+    border: 2px solid #333;
+    padding: 8pt;
+    text-align: center;
+  }
+
+  .duties-chart th {
+    background: #f3e8ff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Food chart styling */
+  .food-chart-item {
+    display: flex;
+    align-items: center;
+    gap: 10pt;
+    padding: 6pt 10pt;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .food-chart-emoji {
+    font-size: 20pt;
+  }
+}
+
+/* Screen preview styles */
+@media screen {
+  .print-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+}

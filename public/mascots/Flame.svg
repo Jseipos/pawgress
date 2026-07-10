@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="100%" stop-color="#fde68a"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#dc2626"/>
+      <stop offset="40%" stop-color="#f97316"/>
+      <stop offset="70%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#fef3c7"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="62" fill="url(#bg)" stroke="#fcd34d" stroke-width="2"/>
+  <!-- Flame body -->
+  <path d="M64 20 Q52 38 56 52 Q48 58 50 70 Q52 84 64 92 Q76 84 78 70 Q80 58 72 52 Q76 38 64 20 Z" fill="url(#flame)"/>
+  <!-- Inner flame -->
+  <path d="M64 34 Q58 44 60 54 Q55 60 57 70 Q60 80 64 86 Q68 80 71 70 Q73 60 68 54 Q70 44 64 34 Z" fill="#fef3c7" opacity="0.6"/>
+  <!-- Cute face -->
+  <circle cx="58" cy="62" r="3" fill="#1e293b"/>
+  <circle cx="70" cy="62" r="3" fill="#1e293b"/>
+  <circle cx="59" cy="61" r="1" fill="#fff"/>
+  <circle cx="71" cy="61" r="1" fill="#fff"/>
+  <path d="M58 72 Q64 76 70 72" stroke="#1e293b" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>
